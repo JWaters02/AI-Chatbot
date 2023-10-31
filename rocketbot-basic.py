@@ -1,99 +1,99 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import wikipedia
-import json, requests
-APIkey = "5403a1e0442ce1dd18cb1bf7c40e776f" 
+import requests
 import aiml
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-# Create a Kernel object. No string encoding (all I/O is unicode)
-kern = aiml.Kernel()
-kern.setTextEncoding(None)
-# Use the Kernel's bootstrap() method to initialize the Kernel. The
-# optional learnFiles argument is a file (or list of files) to load.
-# The optional commands argument is a command (or list of commands)
-# to run after the files are loaded.
-# The optional brainFile argument specifies a brain file to load.
-kern.bootstrap(learnFiles="rockets-basic.xml")
 
-df = pd.read_csv('rockets.csv')
-questions = df['query'].tolist()
-answers = df['description'].tolist()
+def get_spaceX_rockets():
+    url = "https://api.spacexdata.com/v4/rockets"
+    response = requests.get(url)
+    if response.status_code == 200:
+        rockets = response.json()
+        print("---------------------------------------------------")
+        for rocket in rockets:
+            print(f"Rocket Name: {rocket['name']}")
+            print(f"Description: {rocket['description']}")
+            print(f"Height: {rocket['height']['meters']} meters")
+            print(f"Diameter: {rocket['diameter']['meters']} meters")
+            print(f"Mass: {rocket['mass']['kg']} kg")
+            print("---------------------------------------------------")
+    else:
+        print(f"Failed to fetch data. HTTP Status Code: {response.status_code}")
 
-# TF-IDF Vectorizer
-vectorizer = TfidfVectorizer().fit_transform(questions)
+def get_spaceX_launches(num):
+    url = "https://api.spacexdata.com/v4/launches"
+    response = requests.get(url)
+    if response.status_code == 200:
+        launches = response.json()
+        print("---------------------------------------------------")
+        for launch in launches[:int(num)]:
+            print(f"Name: {launch['name']}")
+            print(f"Success: {launch['success']}")
+            print(f"Details: {launch['details']}")
+            print(f"Date: {launch['date_utc']}")
+            print("---------------------------------------------------")
+    else:
+        print(f"Failed to fetch data. HTTP Status Code: {response.status_code}")
 
-def get_similar_question(user_input):
+def get_similar_question(user_input, threshold=0.5):
     query_vector = vectorizer.transform([user_input])
-    similarity = cosine_similarity(query_vector, vectorizer)
+    similarity = cosine_similarity(query_vector, vectorizer.transform(questions))
+    max_similarity = similarity.max()
+    if max_similarity < threshold: return 0
     index = similarity.argmax()
     return answers[index]
 
-print("Welcome to this chat bot. Please feel free to ask questions from me!")
-
-while True:
-    try:
-        userInput = input("> ")
-    except (KeyboardInterrupt, EOFError) as e:
-        print("Bye!")
-        break
-    #pre-process user input and determine response agent (if needed)
-    responseAgent = 'aiml'
-    #activate selected response agent
-    if responseAgent == 'aiml':
-        answer = kern.respond(userInput)
-        #post-process the answer for commands
-        if answer[0] == '#':
-            params = answer[1:].split('$')
-            if params[0] == 'SpaceXAPI':
-                url = "https://api.spacexdata.com/v4/rockets"
-                response = requests.get(url)
-                if response.status_code == 200:
-                    rockets = response.json()
-                    print("---------------------------------------------------")
-                    for rocket in rockets:
-                        print(f"Rocket Name: {rocket['name']}")
-                        print(f"Description: {rocket['description']}")
-                        print(f"Height: {rocket['height']['meters']} meters")
-                        print(f"Diameter: {rocket['diameter']['meters']} meters")
-                        print(f"Mass: {rocket['mass']['kg']} kg")
-                        print("---------------------------------------------------")
-                else:
-                    print(f"Failed to fetch data. HTTP Status Code: {response.status_code}")
-            else:
-                cmd = int(params[0])
-                if cmd == 0:
-                    print(params[1])
-                    break
-                elif cmd == 1:
-                    try:
-                        wSummary = wikipedia.summary(params[1], sentences=3,auto_suggest=False)
-                        print(wSummary)
-                    except:
-                        print("Sorry, I do not know that. Be more specific!")
-                elif cmd == 2:
-                    succeeded = False
-                    api_url = r"http://api.openweathermap.org/data/2.5/weather?q="
-                    response = requests.get(api_url + params[1] + r"&units=metric&APPID="+APIkey)
-                    if response.status_code == 200:
-                        response_json = json.loads(response.content)
-                        if response_json:
-                            t = response_json['main']['temp']
-                            tmi = response_json['main']['temp_min']
-                            tma = response_json['main']['temp_max']
-                            hum = response_json['main']['humidity']
-                            wsp = response_json['wind']['speed']
-                            wdir = response_json['wind']['deg']
-                            conditions = response_json['weather'][0]['description']
-                            print("The temperature is", t, "°C, varying between", tmi, "and", tma, "at the moment, humidity is", hum, "%, wind speed ", wsp, "m/s,", conditions)
-                            succeeded = True
-                    if not succeeded:
-                        print("Sorry, I could not resolve the location you gave me.")
-                elif cmd == 99:
-                    print("I did not get that, please try again.")
-        else:
-            # If AIML doesn't have an answer, use the similarity-based component
-            if answer == "":  # or whatever default response AIML gives when it doesn't know the answer
+def main():
+    print("Welcome to this chat bot. Please feel free to ask questions from me!")
+    while True:
+        try:
+            userInput = input("> ")
+        except (KeyboardInterrupt, EOFError) as e:
+            print("Bye!")
+            break
+        responseAgent = 'aiml'
+        if responseAgent == 'aiml':
+            answer = kern.respond(userInput)
+            if answer == "": 
                 answer = get_similar_question(userInput)
-            print(answer)
+                if answer == 0: answer = "Sorry, I do not know that. Be more specific!"
+                print(answer)
+            elif answer[0] == '#':
+                params = answer[1:].split('$')
+                if params[0] == 'SpaceXAPI':
+                    if params[1] == 'rockets':
+                        get_spaceX_rockets()
+                    elif params[1] == 'launches':
+                        num = input("How many launches do you want to see?\n> ")
+                        get_spaceX_launches(num)
+                else:
+                    cmd = int(params[0])
+                    if cmd == 0:
+                        print(params[1])
+                        break
+                    elif cmd == 1:
+                        try:
+                            wSummary = wikipedia.summary(params[1], sentences=3,auto_suggest=False)
+                            print(wSummary)
+                        except:
+                            print("Sorry, I do not know that. Be more specific!")
+                    elif cmd == 99:
+                        print("I did not get that, please try again.")
+
+if __name__ == "__main__":
+    kern = aiml.Kernel()
+    kern.setTextEncoding(None)
+    kern.bootstrap(learnFiles="rockets-basic.xml")
+    kern.verbose(False)
+
+    df = pd.read_csv('rockets.csv')
+    questions = df['question'].tolist()
+    answers = df['answer'].tolist()
+
+    vectorizer = TfidfVectorizer()
+    vectorizer.fit_transform(questions)
+
+    main()

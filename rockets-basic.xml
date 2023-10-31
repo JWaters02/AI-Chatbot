@@ -93,12 +93,10 @@
     <template>#SpaceXAPI$rockets</template>
 </category>
 
-<!-- Weather API -->
-<category><pattern> WHAT IS THE WEATHER LIKE IN * </pattern>
-  <template>#2$<star/></template></category>
-
-<category><pattern> HOW IS THE WEATHER IN * </pattern>
-  <template><srai>WHAT IS THE WEATHER LIKE IN <star/></srai></template></category>
+<category>
+    <pattern>TELL ME ABOUT SPACEX LAUNCHES</pattern>
+    <template>#SpaceXAPI$launches</template>
+</category>
 
 <!--- Wikipedia API -->
 <category><pattern> WHAT IS A * </pattern>
@@ -117,7 +115,7 @@
   <template><srai>WHAT IS A <star/></srai></template></category>
 
 <!-- Default reaction -->
-<category><pattern> * </pattern>
-  <template>#99$<star index="1"/></template></category>
+<!-- <category><pattern> * </pattern>
+  <template>#99$<star index="1"/></template></category> -->
 
 </aiml>
