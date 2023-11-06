@@ -1,0 +1,11 @@
+BFS: 
+0 1 2 3 4
+
+DFS:
+0 3 2 4 1
+
+BFS:
+A B C F D G E
+
+DFS:
+A C G E F D B

@@ -2,7 +2,7 @@
 import collections
 
 # BFS algorithm
-def bfs(graph, root):
+def bfs(graph, root, goal):
     print('BFS: ')
 
     visited, queue = set(), collections.deque([root])
@@ -12,6 +12,7 @@ def bfs(graph, root):
         # Dequeue a vertex from queue
         vertex = queue.popleft()
         print(str(vertex) + " ", end="")
+        if vertex == goal: break
 
         # If not visited, mark it as visited, and
         # enqueue it
@@ -38,8 +39,8 @@ def dfs(graph, root):
 
 if __name__ == '__main__':
     graph = {0: [1, 2, 3], 1: [2], 2: [4], 3: [2], 4: [2]}
-    bfs(graph, 0)
+    bfs(graph, 0, 3)
     dfs(graph, 0)
     graph = {'A': ['B', 'C'], 'B': ['F'], 'C': ['D', 'F', 'G'], 'D': ['E'], 'E': ['G'], 'F': ['G'], 'G': ['F', 'C', 'E']}
-    bfs(graph, 'A')
+    bfs(graph, 'A', 'F')
     dfs(graph, 'A')
