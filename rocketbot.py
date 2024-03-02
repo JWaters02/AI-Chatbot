@@ -6,6 +6,23 @@ import aiml
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from nltk.sem import Expression
+from nltk.inference import ResolutionProver
+
+def check_kb_integrity(kb):
+    for expr in kb:
+        # Construct the negation of the current expression
+        neg_expr = Expression.fromstring('not (' + str(expr) + ')')
+        
+        # Create a temporary KB without the current expression
+        temp_kb = [e for e in kb if e != expr]
+
+        print(f"Checking integrity of KB with expression: {expr}")
+        
+        # Check if the negation of the expression can be proved using the temporary KB
+        if ResolutionProver().prove(neg_expr, temp_kb, verbose=True):
+            raise ValueError(f"Contradiction found in KB with expression: {expr}")
+    print("KB integrity check passed. No contradictions found.")
 
 def get_spaceX_rockets():
     url = "https://api.spacexdata.com/v4/rockets"
@@ -76,24 +93,56 @@ def main():
                         break
                     elif cmd == 1:
                         try:
-                            wSummary = wikipedia.summary(params[1], sentences=3,auto_suggest=False)
+                            wSummary = wikipedia.summary(params[1], sentences=3, auto_suggest=False)
                             print(wSummary)
                         except:
                             print("Sorry, I do not know that. Be more specific!")
+                    elif cmd == 31:  # if input pattern is "I know that * is *"
+                        object, subject = params[1].split(' is ')
+                        expr = read_expr(subject + '(' + object + ')')
+                        
+                        # Check for contradiction
+                        neg_expr = read_expr('-' + subject + '(' + object + ')')
+                        if ResolutionProver().prove(neg_expr, kb, verbose=False):
+                            print("Error: This contradicts what I already know.")
+                        else:
+                            kb.append(expr)
+                            print('OK, I will remember that', object, 'is', subject)
+                    elif cmd == 32:  # if the input pattern is "check that * is *"
+                        object, subject = params[1].split(' is ')
+                        expr = read_expr(subject + '(' + object + ')')
+                        neg_expr = read_expr('-' + subject + '(' + object + ')')
+                        
+                        if ResolutionProver().prove(expr, kb, verbose=False):
+                            print('Correct.')
+                        elif ResolutionProver().prove(neg_expr, kb, verbose=False):
+                            print('Incorrect.')
+                        else:
+                            print("Sorry, I don't know.")
                     elif cmd == 99:
                         print("I did not get that, please try again.")
+            else:
+                print(answer)
 
 if __name__ == "__main__":
     kern = aiml.Kernel()
     kern.setTextEncoding(None)
-    kern.bootstrap(learnFiles="rockets-basic.xml")
+    kern.bootstrap(learnFiles="rockets-aiml.xml")
     kern.verbose(False)
 
-    df = pd.read_csv('rockets.csv')
+    # AIML agent
+    df = pd.read_csv('rockets-task-a.csv')
     questions = df['question'].tolist()
     answers = df['answer'].tolist()
 
     vectorizer = TfidfVectorizer()
     vectorizer.fit_transform(questions)
+
+    # Knowledge Base
+    read_expr = Expression.fromstring
+    kb = []
+    data = pd.read_csv('rockets-kb.csv', delimiter=';', header=None)
+    [kb.append(read_expr(row)) for row in data[0]]
+    check_kb_integrity(kb)
 
     main()

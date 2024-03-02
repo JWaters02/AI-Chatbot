@@ -100,22 +100,25 @@
 
 <!--- Wikipedia API -->
 <category><pattern> WHAT IS A * </pattern>
-  <template>#1$<star index="1"/></template></category>
+     <template>#1$<star index="1"/></template></category>
 
 <category><pattern> WHAT IS AN * </pattern>
-  <template><srai>WHAT IS A <star/></srai></template></category>
+     <template><srai>WHAT IS A <star/></srai></template></category>
 
 <category><pattern> WHAT IS * </pattern>
-  <template><srai>WHAT IS A <star/></srai></template></category>
+    <template><srai>WHAT IS A <star/></srai></template></category>
 
 <category><pattern> DEFINE * </pattern>
-  <template><srai>WHAT IS A <star/></srai></template></category>
+    <template><srai>WHAT IS A <star/></srai></template></category>
 
 <category><pattern> WHO IS * </pattern>
-  <template><srai>WHAT IS A <star/></srai></template></category>
+    <template><srai>WHAT IS A <star/></srai></template></category>
 
-<!-- Default reaction -->
-<!-- <category><pattern> * </pattern>
-  <template>#99$<star index="1"/></template></category> -->
+<!-- Logic input -->
+<category><pattern> I KNOW THAT * IS *</pattern>
+    <template>#31$<star index="1"/> is <star index="2"/></template></category>  
+
+<category><pattern> CHECK THAT * IS *</pattern>
+    <template>#32$<star index="1"/> is <star index="2"/></template></category>  
 
 </aiml>
