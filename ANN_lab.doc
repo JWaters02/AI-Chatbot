@@ -1,0 +1,7 @@
+Linear rogression model score: 0.705
+Logistic regression model score: 0.981
+Neural network model scores: 
+  - max_iter=700: 0.977
+  - max_iter=700, hidden=(30,30,30): 0.972
+  - max_iter=700, activation='logistic': 0.975
+  
