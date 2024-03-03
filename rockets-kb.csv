@@ -1,10 +1,10 @@
-Rocket (Falcon1) & Uncrewed (Falcon1)
-Rocket (Starship) & Crewed (Starship)
-all x. (HeavyLift (x) -> Rocket (x))
-all x. (Reusable (x) -> Rocket (x))
-all x. (Crewed (x) -> Rocket (x))
-all x. (Uncrewed (x) -> Rocket (x))
-all x. (Rocket (x) & -Crewed (x) -> Uncrewed (x))
-all x. (Rocket (x) & -Reusable (x) -> -HeavyLift (x))
-all x. (Uncrewed (x) -> -Crewed (x))
-all x. (Rocket (x) -> ManufacturedBy (x, SpaceX))
+"rocket (falcon1)"
+"rocket (falcon9)"
+"rocket (starship)"
+"rocket (falconHeavy)"
+"capsule (dragon)"
+"capsule (dragon2)"
+"booster (superHeavy)"
+"rocket (x) -> -capsule (x)"
+"rocket (x) -> -booster (x)"
+"capsule (x) -> -booster (x)"

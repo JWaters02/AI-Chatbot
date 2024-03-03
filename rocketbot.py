@@ -20,7 +20,7 @@ def check_kb_integrity(kb):
         print(f"Checking integrity of KB with expression: {expr}")
         
         # Check if the negation of the expression can be proved using the temporary KB
-        if ResolutionProver().prove(neg_expr, temp_kb, verbose=True):
+        if ResolutionProver().prove(neg_expr, temp_kb, verbose=False):
             raise ValueError(f"Contradiction found in KB with expression: {expr}")
     print("KB integrity check passed. No contradictions found.")
 
@@ -98,7 +98,7 @@ def main():
                         except:
                             print("Sorry, I do not know that. Be more specific!")
                     elif cmd == 31:  # if input pattern is "I know that * is *"
-                        object, subject = params[1].split(' is ')
+                        object, subject = params[1].lower().split(' is ')
                         expr = read_expr(subject + '(' + object + ')')
                         
                         # Check for contradiction
@@ -109,7 +109,7 @@ def main():
                             kb.append(expr)
                             print('OK, I will remember that', object, 'is', subject)
                     elif cmd == 32:  # if the input pattern is "check that * is *"
-                        object, subject = params[1].split(' is ')
+                        object, subject = params[1].lower().split(' is ')
                         expr = read_expr(subject + '(' + object + ')')
                         neg_expr = read_expr('-' + subject + '(' + object + ')')
                         
