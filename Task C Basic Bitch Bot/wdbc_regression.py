@@ -58,7 +58,10 @@ biases = mlp_model.intercepts_
 
 first_layer_weights = weights[0]
 
-print(weights)
+# print(weights)
+# print the matrix sizes of the weights
+print("First layer weights matrix size:", first_layer_weights.shape)
+print("Second layer weights matrix size:", weights[1].shape)
 
 plt.plot(mlp_model.loss_curve_)
 plt.show()

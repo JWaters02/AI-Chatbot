@@ -1,0 +1,12 @@
+Task 1: 
+ANN Test accuracy: 0.881
+
+Task 2:
+Lab's CNN model's test accuracy: 0.896
+My CNN model's test accuracy: 0.918
+
+My model's changes:
+- Added 3rd convolutional layer (same parameters as other two)
+- Adjusted neuron dropout rate to 0.3
+- Changed activation function to softmax due to the program being for multi-class classification
+

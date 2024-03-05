@@ -1,7 +1,15 @@
+Task 1:
 Linear rogression model score: 0.705
 Logistic regression model score: 0.981
 Neural network model scores: 
   - max_iter=700: 0.977
   - max_iter=700, hidden=(30,30,30): 0.972
   - max_iter=700, activation='logistic': 0.975
-  
+
+Task 2:
+The size of the first array of the weight matrix for the neural network model is (30, 100) and the size of the second array is (100, 1). In the first array, 30 is the number of features/input neurons, and 100 is the number of neurons in the hidden layer. In the second array, 100 is the number of neurons in the hidden layer and 1 is the number of neurons in the output layer.
+
+Task 3:
+The problem is binary classification because the output is predicting one of two classes, M or B. Therefore for MLP classifier, the output activation function is logistic.
+
+The activation functions in the hidden layers are inherently required for it to learn complex patterns in the data by introducing non-linearity. The output layer needs to map output of the last hidden layer to the binary classification, so the logistic function is used to map the output (which is a raw score) to the probability of the positive class (which is between 0 and 1). 
