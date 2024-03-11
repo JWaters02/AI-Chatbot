@@ -23,10 +23,10 @@ model = keras.Sequential([
     keras.layers.MaxPooling2D(pool_size=(2, 2)),
     keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu'),
     keras.layers.MaxPooling2D(pool_size=(2, 2)),
-    keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'),  # Additional Conv layer
+    keras.layers.Conv2D(filters=256, kernel_size=(3, 3), activation='relu'),
     keras.layers.Flatten(),
-    keras.layers.Dropout(0.3),  # Adjusted dropout rate
-    keras.layers.Dense(output_classes, activation='softmax')  # Changed to softmax
+    keras.layers.Dropout(0.3),
+    keras.layers.Dense(output_classes, activation='softmax')
 ])
 
 model.compile(optimizer='adam',

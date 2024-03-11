@@ -1,10 +1,11 @@
-"rocket (falcon1)"
-"rocket (falcon9)"
-"rocket (starship)"
-"rocket (falconHeavy)"
-"capsule (dragon)"
-"capsule (dragon2)"
-"booster (superHeavy)"
-"rocket (x) -> -capsule (x)"
-"rocket (x) -> -booster (x)"
-"capsule (x) -> -booster (x)"
+rocket(falcon1)
+rocket(falcon9)
+rocket(starship)
+rocket(falconHeavy)
+capsule(dragon)
+capsule(dragon2)
+booster(superHeavy)
+(rocket(x) -> -capsule(x))
+(rocket(x) -> -booster(x))
+(capsule(x) -> -booster(x))
+rocket(sls)

@@ -8,6 +8,39 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.sem import Expression
 from nltk.inference import ResolutionProver
+from tensorflow import keras
+import numpy as np
+import tkinter as tk
+from tkinter import filedialog
+
+def get_image_class():
+    print("Please upload the image you want to classify.")
+    uploaded_image_path = filedialog.askopenfilename(
+        title='Select an Image',
+        filetypes=[('Image Files', '*.png;*.jpg;*.jpeg')]
+    )
+    image = keras.preprocessing.image.load_img(uploaded_image_path, target_size=(224, 224))
+    image = keras.preprocessing.image.img_to_array(image)
+    image = np.expand_dims(image, axis=0)
+    image /= 255.0
+
+    prediction = model.predict(image)
+    predicted_class = np.argmax(prediction, axis=1)
+    
+    class_indices = {0: 'drone', 1: 'fighter jet', 2: 'helicopter', 3: 'missile', 4: 'passenger plane', 5: 'rocket'}
+    return class_indices[predicted_class[0]].lower()
+
+def predict_image_class():
+    image_class = get_image_class()
+    print(f"This image is most likely a {image_class}.")
+
+def is_image_type(image_type):
+    image_class = get_image_class()
+    
+    if image_class == image_type.lower():
+        print(f"Yes, this image is most likely a {image_type}.")
+    else:
+        print(f"No, this image is most likely a {image_class}.")
 
 def check_kb_integrity(kb):
     for expr in kb:
@@ -17,7 +50,7 @@ def check_kb_integrity(kb):
         # Create a temporary KB without the current expression
         temp_kb = [e for e in kb if e != expr]
 
-        print(f"Checking integrity of KB with expression: {expr}")
+        # print(f"Checking integrity of KB with expression: {expr}")
         
         # Check if the negation of the expression can be proved using the temporary KB
         if ResolutionProver().prove(neg_expr, temp_kb, verbose=False):
@@ -86,6 +119,12 @@ def main():
                     elif params[1] == 'launches':
                         num = input("How many launches do you want to see?\n> ")
                         get_spaceX_launches(num)
+                elif params[0] == 'CNN':
+                    if params[1] == 'predict':
+                        predict_image_class()
+                    elif params[1] == 'isType':
+                        image_type = params[2]
+                        is_image_type(image_type)
                 else:
                     cmd = int(params[0])
                     if cmd == 0:
@@ -98,7 +137,10 @@ def main():
                         except:
                             print("Sorry, I do not know that. Be more specific!")
                     elif cmd == 31:  # if input pattern is "I know that * is *"
-                        object, subject = params[1].lower().split(' is ')
+                        # remove words like "a", "an", "the" from the input
+                        text = ' '.join([word for word in params[1].lower().split() if word not in ('a', 'an', 'the')])
+                        object, subject = text.split(' is ')
+                        
                         expr = read_expr(subject + '(' + object + ')')
                         
                         # Check for contradiction
@@ -106,10 +148,14 @@ def main():
                         if ResolutionProver().prove(neg_expr, kb, verbose=False):
                             print("Error: This contradicts what I already know.")
                         else:
-                            kb.append(expr)
                             print('OK, I will remember that', object, 'is', subject)
+                            remember = input("Would you like for me to permanently remember this fact? (y/n)\n> ")
+                            if remember.lower() == 'y': kb.append(expr)
                     elif cmd == 32:  # if the input pattern is "check that * is *"
-                        object, subject = params[1].lower().split(' is ')
+                        # remove words like "a", "an", "the" from the input
+                        text = ' '.join([word for word in params[1].lower().split() if word not in ('a', 'an', 'the')])
+                        object, subject = text.split(' is ')
+
                         expr = read_expr(subject + '(' + object + ')')
                         neg_expr = read_expr('-' + subject + '(' + object + ')')
                         
@@ -125,12 +171,13 @@ def main():
                 print(answer)
 
 if __name__ == "__main__":
+    # AIML agent
     kern = aiml.Kernel()
     kern.setTextEncoding(None)
     kern.bootstrap(learnFiles="rockets-aiml.xml")
     kern.verbose(False)
 
-    # AIML agent
+    # Predefined questions and answers
     df = pd.read_csv('rockets-task-a.csv')
     questions = df['question'].tolist()
     answers = df['answer'].tolist()
@@ -138,11 +185,23 @@ if __name__ == "__main__":
     vectorizer = TfidfVectorizer()
     vectorizer.fit_transform(questions)
 
-    # Knowledge Base
+    # Knowledge base
     read_expr = Expression.fromstring
     kb = []
     data = pd.read_csv('rockets-kb.csv', delimiter=';', header=None)
     [kb.append(read_expr(row)) for row in data[0]]
     check_kb_integrity(kb)
 
+    # CNN agent
+    model = keras.models.load_model('rocket-detection.h5')
+
+    # File dialog
+    root = tk.Tk()
+    root.withdraw()
+
     main()
+
+    # Save the KB
+    with open('rockets-kb.csv', 'w') as f:
+        for expr in kb:
+            f.write(str(expr) + '\n')

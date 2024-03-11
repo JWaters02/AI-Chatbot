@@ -121,4 +121,15 @@
 <category><pattern> CHECK THAT * IS *</pattern>
     <template>#32$<star index="1"/> is <star index="2"/></template></category>  
 
+<!-- CNN Model input -->
+<category>
+    <pattern>WHAT IS THIS IMAGE</pattern>
+    <template>#CNN$predict</template>
+</category>
+
+<category>
+    <pattern>IS THIS IMAGE A *</pattern>
+    <template>#CNN$isType$<star/></template>
+</category>
+
 </aiml>

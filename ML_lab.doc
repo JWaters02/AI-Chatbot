@@ -1,7 +1,0 @@
-Task 1 model score: 0.705
-Task 2 model score: 0.981
-Task 3 model score: 0.977
-
-Potential explanation why using PCA to reduce attributes from 30 to 15 reduces model score:
-
-While PCA converts a set of potentially correlated attributes into a set of linearly uncorrelated attributes, it does not necessarily mean that the new set of attributes will be more informative than the original set. This is because, some useful predictive power of other attributes may be lost in the transformation. So generally, by reducing the number of attributes, amount of information available to the model is reduced, thus in-tern leads to a decrease in model score.
